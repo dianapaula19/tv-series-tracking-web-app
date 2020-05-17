@@ -32,4 +32,8 @@ public class ChallengeService {
         challengeRepository.save(challenge);
     }
 
+    public void delete(Challenge challenge) {
+        challengeRepository.delete(challenge);
+    }
+
 }

@@ -27,16 +27,8 @@ public class UserService {
     }
 
 
-    public boolean save(User user) {
-        if(isValid(user)) {
-            try {
-                userRepository.save(user);
-                return true;
-            } catch (DataIntegrityViolationException e) {
-                System.out.println("User already exists");
-            }
-        }
-        return false;
+    public void save(User user){
+        userRepository.save(user);
     }
 
     public User findById(Integer id) {
@@ -67,7 +59,7 @@ public class UserService {
     }
 
     public static boolean passwordValidator(String password) {
-        String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}";
+        String pattern = "(?=.*[0-9])(?=\\S+$).{8,}";
         return password.matches(pattern);
     }
 
@@ -76,13 +68,48 @@ public class UserService {
         return email.matches(pattern);
     }
 
-    public static boolean isValid(User user) {
-        if(usernameValidator(user.getUsername()) &&
-                passwordValidator(user.getPassword()) &&
-                emailValidator(user.getEmail()) &&
-                user.getFirstName() != null &&
-                user.getLastName() != null) {
-            return true;
+    public List<String> isValid(User user) {
+        List<String> notifications = new ArrayList<>();
+        if(!usernameValidator(user.getUsername())) {
+            notifications.add("The username must be between 8 and 30 characters");
+        }
+        if(!passwordValidator(user.getPassword())) {
+            notifications.add("The password must be at least 8 characters and contain at least one number");
+        }
+        if(!emailValidator(user.getEmail())) {
+            notifications.add("The email must respect the proper format(example: johnsmith@example.com)");
+        }
+        if(user.getFirstName() == null || user.getFirstName().length() == 0) {
+            notifications.add("The first name field must not be blank");
+        }
+        if(user.getLastName() == null || user.getLastName().length() == 0) {
+            notifications.add("The last name must not be blank");
+        }
+        if(this.findByUsername(user.getUsername())) {
+            notifications.add("The username already exists");
+        }
+        if(this.findByEmail(user.getEmail())) {
+            notifications.add("There's already an user registered with this email");
+        }
+        if(notifications.size() == 0) {
+            return null;
+        }
+        return notifications;
+    }
+
+    public boolean findByUsername(String username) {
+        for (User u : userRepository.findAll()) {
+            if(u.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean findByEmail(String email) {
+        for (User u : userRepository.findAll()) {
+            if(u.getEmail().equals(email)) {
+                return true;
+            }
         }
         return false;
     }

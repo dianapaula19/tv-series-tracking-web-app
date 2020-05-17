@@ -16,7 +16,6 @@ public class RequestService {
     public List<User> friendsofUser(User user) {
         List<User> friends = new ArrayList<>();
         for (Request r : requestRepository.findAll()) {
-            System.out.println(r);
             if(areFriends(user, r.getUser())) {
                 friends.add(r.getUser());
             }
@@ -27,7 +26,7 @@ public class RequestService {
     public List<User> friendRequests(User user) {
         List<User> friendRequests = new ArrayList<>();
         for(Request r : requestRepository.findAll()) {
-            if(requestExists(r.getUser(), user) && requestExists(user, r.getUser()) == false) {
+            if(requestExists(r.getUser(), user) && !requestExists(user, r.getUser())) {
                 friendRequests.add(r.getUser());
             }
         }

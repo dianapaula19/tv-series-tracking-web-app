@@ -1,13 +1,11 @@
 package com.example.tvseriestrackingwebapp.ui.views;
 
-import com.example.tvseriestrackingwebapp.backend.models.Episode;
-import com.example.tvseriestrackingwebapp.backend.models.Season;
-import com.example.tvseriestrackingwebapp.backend.models.TvSeries;
-import com.example.tvseriestrackingwebapp.backend.models.WatchedEpisode;
+import com.example.tvseriestrackingwebapp.backend.models.*;
 import com.example.tvseriestrackingwebapp.backend.service.TVSeriesService;
 import com.example.tvseriestrackingwebapp.backend.service.WatchedEpisodeService;
 import com.example.tvseriestrackingwebapp.ui.MainLayout;
 import com.example.tvseriestrackingwebapp.ui.components.SignInForm;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
@@ -38,7 +36,7 @@ public class TvSeriesView extends VerticalLayout {
     public TvSeriesView(TVSeriesService tvSeriesService, WatchedEpisodeService watchedEpisodeService) {
         this.tvSeriesService = tvSeriesService;
         this.watchedEpisodeService = watchedEpisodeService;
-        if (SignInForm.currentUser == null) {
+        if (ComponentUtil.getData(UI.getCurrent(), User.class) == null) {
             UI.getCurrent().navigate("error");
         } else {
             updateList();
@@ -68,6 +66,7 @@ public class TvSeriesView extends VerticalLayout {
             Select<String> seasonSelect = new Select<>();
             verticalLayout.add(tvSeriesDetails);
             verticalLayout.add(seasonSelect);
+            accordion.close();
             seasonSelect.setItems(getSeasonsTitles(tvSeries.getSeasons()));
             VerticalLayout episodeLayout = new VerticalLayout();
             seasonSelect.addValueChangeListener(event -> {
@@ -82,7 +81,6 @@ public class TvSeriesView extends VerticalLayout {
 
                 }
             });
-            verticalLayout.add();
             accordion.add(tvSeries.getTitle(), verticalLayout);
             add(accordion);
         }
@@ -122,14 +120,16 @@ public class TvSeriesView extends VerticalLayout {
                 alreadyAdded.setEnabled(false);
                 addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 addButton.addClickListener(buttonClickEvent -> {
-                    watchedEpisodeService.save(new WatchedEpisode(SignInForm.currentUser, episode));
+                    watchedEpisodeService.save(new WatchedEpisode(ComponentUtil.getData(UI.getCurrent(), User.class), episode));
+                    remove(addButton);
+                    add(alreadyAdded);
                 });
                 add(
                         new H5(episode.getTitle()),
                         new H5(episode.getDuration() + "min"),
                         episodeDetails
                 );
-                if (watchedEpisodeService.findByUserAndEpisode(SignInForm.currentUser, episode) == null) {
+                if (watchedEpisodeService.findByUserAndEpisode(ComponentUtil.getData(UI.getCurrent(), User.class), episode) != null) {
                     add(alreadyAdded);
                 } else {
                     add(addButton);

@@ -7,6 +7,7 @@ import com.example.tvseriestrackingwebapp.backend.models.WatchedEpisode;
 import com.example.tvseriestrackingwebapp.backend.repositories.WatchedEpisodeRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service

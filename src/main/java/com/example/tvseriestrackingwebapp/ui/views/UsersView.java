@@ -5,17 +5,13 @@ import com.example.tvseriestrackingwebapp.backend.models.User;
 import com.example.tvseriestrackingwebapp.backend.service.RequestService;
 import com.example.tvseriestrackingwebapp.backend.service.UserService;
 import com.example.tvseriestrackingwebapp.ui.MainLayout;
-import com.example.tvseriestrackingwebapp.ui.components.SignInForm;
-import com.example.tvseriestrackingwebapp.ui.components.UserComponent;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
-
-import javax.swing.*;
-import java.util.Iterator;
 
 @Route(value = "users", layout = MainLayout.class)
 @PreserveOnRefresh
@@ -27,22 +23,23 @@ public class UsersView extends VerticalLayout {
     public UsersView(UserService userService, RequestService requestService) {
         this.userService = userService;
         this.requestService = requestService;
+        if(ComponentUtil.getData(UI.getCurrent(), User.class) == null) {
 
-
-        updateList();
+        } else {
+            updateList();
+        }
     }
 
 
     public void updateList() {
         for (User u : userService.findAll()) {
-            if(requestService.requestExists(u, SignInForm.currentUser) == false &&
-                    requestService.requestExists(SignInForm.currentUser, u) == false &&
-                    u.equals(SignInForm.currentUser) == false
+            if(requestService.requestExists(u, ComponentUtil.getData(UI.getCurrent(), User.class)) == false &&
+                    requestService.requestExists(ComponentUtil.getData(UI.getCurrent(), User.class), u) == false &&
+                    u.equals(ComponentUtil.getData(UI.getCurrent(), User.class)) == false
             ) {
                 add(new UserComponent(u, requestService));
             }
         }
-
     }
 
     public static class UserComponent extends VerticalLayout {
@@ -54,7 +51,7 @@ public class UsersView extends VerticalLayout {
             this.requestService = requestService;
             Button sendFriendRequestButton = new Button("Add friend");
             sendFriendRequestButton.addClickListener(buttonClickEvent -> {
-                requestService.save(new Request(SignInForm.currentUser, user));
+                requestService.save(new Request(ComponentUtil.getData(UI.getCurrent(), User.class), user));
                 removeAll();
             });
             add(

@@ -9,6 +9,8 @@ import com.example.tvseriestrackingwebapp.backend.service.RequestService;
 import com.example.tvseriestrackingwebapp.backend.service.TVSeriesService;
 import com.example.tvseriestrackingwebapp.ui.MainLayout;
 import com.example.tvseriestrackingwebapp.ui.components.SignInForm;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -35,7 +37,7 @@ public class FriendsView extends VerticalLayout {
     }
 
     public void updateList() {
-        for (User u : requestService.friendsofUser(SignInForm.currentUser)) {
+        for (User u : requestService.friendsofUser(ComponentUtil.getData(UI.getCurrent(), User.class))) {
             add(new FriendComponent(u, tvSeriesService, challengeService));
         }
     }
@@ -50,17 +52,21 @@ public class FriendsView extends VerticalLayout {
             this.user = user;
             this.tvSeriesService = tvSeriesService;
             this.challengeService = challengeService;
-            add(new H4(user.getFirstName() + " " + user.getLastName()));
-            ComboBox<TvSeries> tvSeriesComboBox = new ComboBox<>();
-            List<TvSeries> tvSeries = tvSeriesService.findAll();
-            tvSeriesComboBox.setItemLabelGenerator(TvSeries::getTitle);
-            tvSeriesComboBox.setItems(tvSeries);
-            tvSeriesComboBox.addValueChangeListener(event -> {
-               if(event.getValue() != null) {
-                    challengeService.save(new Challenge(new Request(SignInForm.currentUser, user), event.getValue()));
-               }
-            });
-            add(new HorizontalLayout(new H5("Challenge to binge watching: "), tvSeriesComboBox));
+            if(ComponentUtil.getData(UI.getCurrent(), User.class) == null) {
+                UI.getCurrent().navigate("error");
+            } else {
+                add(new H4(user.getFirstName() + " " + user.getLastName()));
+                ComboBox<TvSeries> tvSeriesComboBox = new ComboBox<>();
+                List<TvSeries> tvSeries = tvSeriesService.findAll();
+                tvSeriesComboBox.setItemLabelGenerator(TvSeries::getTitle);
+                tvSeriesComboBox.setItems(tvSeries);
+                tvSeriesComboBox.addValueChangeListener(event -> {
+                    if (event.getValue() != null) {
+                        challengeService.save(new Challenge(new Request(ComponentUtil.getData(UI.getCurrent(), User.class), user), event.getValue()));
+                    }
+                });
+                add(new HorizontalLayout(new H5("Challenge to binge watching: "), tvSeriesComboBox));
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ public class Request implements Serializable {
     @EmbeddedId
     private Request.RequestId id;
 
-    @OneToMany(mappedBy = "request")
+    @OneToMany(mappedBy = "request", fetch = FetchType.EAGER)
     private List<Challenge> challenges;
 
 

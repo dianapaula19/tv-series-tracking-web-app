@@ -2,11 +2,13 @@ package com.example.tvseriestrackingwebapp.ui.views;
 
 import com.example.tvseriestrackingwebapp.backend.models.Challenge;
 import com.example.tvseriestrackingwebapp.backend.models.TvSeries;
+import com.example.tvseriestrackingwebapp.backend.models.User;
 import com.example.tvseriestrackingwebapp.backend.service.ChallengeService;
 import com.example.tvseriestrackingwebapp.backend.service.TVSeriesService;
 import com.example.tvseriestrackingwebapp.backend.service.WatchedEpisodeService;
 import com.example.tvseriestrackingwebapp.ui.MainLayout;
 import com.example.tvseriestrackingwebapp.ui.components.SignInForm;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -27,7 +29,7 @@ import java.util.Iterator;
 public class StatsView extends HorizontalLayout {
 
 
-    H2 timeSpentLastThreeMonths = new H2("This is how much you spent watching tv series in the past three months");
+    H2 timeSpentLastThreeMonths = new H2("This is how much time you spent watching tv series in the past three months");
     H3 firstMonth = new H3(getMonthName(getCurrentMonth()));
     H3 secondMonth = new H3(getMonthName(getCurrentMonth() - 1 != 0 ? getCurrentMonth() - 1 : 12));
     H3 thirdMonth = new H3(getMonthName(getCurrentMonth() - 2 != 0 ? getCurrentMonth() - 2 : 12));
@@ -40,7 +42,7 @@ public class StatsView extends HorizontalLayout {
         this.watchedEpisodeService = watchedEpisodeService;
         this.tvSeriesService = tvSeriesService;
         this.challengeService = challengeService;
-        if (SignInForm.currentUser == null) {
+        if (ComponentUtil.getData(UI.getCurrent(), User.class) == null) {
             UI.getCurrent().navigate("error");
         } else {
             VerticalLayout verticalLayoutStats = new VerticalLayout();
@@ -50,10 +52,7 @@ public class StatsView extends HorizontalLayout {
             updateList(getCurrentMonth() - 1 != 0 ? getCurrentMonth() - 1 : 12, verticalLayoutStats);
             verticalLayoutStats.add(thirdMonth);
             updateList(getCurrentMonth() - 2 != 0 ? getCurrentMonth() - 2 : 12, verticalLayoutStats);
-            VerticalLayout verticalLayoutChallenges = new VerticalLayout();
-            verticalLayoutChallenges.add(new H2("Challenges"));
-            updateChallengesList(verticalLayoutChallenges);
-            add(verticalLayoutStats, verticalLayoutChallenges);
+            add(verticalLayoutStats);
 
         }
     }
@@ -97,10 +96,10 @@ public class StatsView extends HorizontalLayout {
     }
 
     public void updateList(int month, VerticalLayout verticalLayoutStats) {
-        for (TvSeries t:watchedEpisodeService.findWatchedTvSeries(SignInForm.currentUser)) {
+        for (TvSeries t:watchedEpisodeService.findWatchedTvSeries(ComponentUtil.getData(UI.getCurrent(), User.class))) {
             String message = t.getTitle() + ": ";
-            int hours = watchedEpisodeService.timeSpentPerMonthPerTvSeries(month, t, SignInForm.currentUser) / 60;
-            int mins = watchedEpisodeService.timeSpentPerMonthPerTvSeries(month, t, SignInForm.currentUser);
+            int hours = watchedEpisodeService.timeSpentPerMonthPerTvSeries(month, t, ComponentUtil.getData(UI.getCurrent(), User.class)) / 60;
+            int mins = watchedEpisodeService.timeSpentPerMonthPerTvSeries(month, t, ComponentUtil.getData(UI.getCurrent(), User.class));
             if(hours != 0){
                 switch (hours) {
                     case 1:
@@ -116,22 +115,6 @@ public class StatsView extends HorizontalLayout {
             }
         }
     }
-
-    public void updateChallengesList(VerticalLayout verticalLayoutChallenges) {
-        for (Challenge c : challengeService.findAllByUser(SignInForm.currentUser)) {
-            verticalLayoutChallenges
-                    .add(
-                            new H5("You were challenge by " +
-                                    c.getRequest().getUser().getFirstName() + " " +
-                                    c.getRequest().getUser().getLastName() + " " +
-                                    "to binge watch " +
-                                    c.getTvSeries().getTitle()
-                    ));
-        }
-    }
-
-
-
 
 
 

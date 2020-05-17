@@ -1,5 +1,6 @@
 package com.example.tvseriestrackingwebapp.ui.views;
 
+import com.example.tvseriestrackingwebapp.backend.models.TvSeries;
 import com.example.tvseriestrackingwebapp.backend.models.User;
 import com.example.tvseriestrackingwebapp.backend.models.WatchedEpisode;
 import com.example.tvseriestrackingwebapp.backend.service.WatchedEpisodeService;
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.*;
@@ -23,13 +25,23 @@ public class EpisodesListView extends VerticalLayout {
 
     public EpisodesListView(WatchedEpisodeService watchedEpisodeService) {
         this.watchedEpisodeService = watchedEpisodeService;
-        updateList();
+        ComboBox<TvSeries> tvSeriesComboBox = new ComboBox<>();
+        tvSeriesComboBox.setItemLabelGenerator(TvSeries::getTitle);
+        tvSeriesComboBox.setItems(watchedEpisodeService.findWatchedTvSeries(ComponentUtil.getData(UI.getCurrent(), User.class)));
+        VerticalLayout episodeListView = new VerticalLayout();
+        tvSeriesComboBox.addValueChangeListener(event -> {
+            episodeListView.removeAll();
+            updateList(event.getValue(), episodeListView);
+        });
+        add(tvSeriesComboBox, episodeListView);
 
     }
-    public void updateList() {
+    public void updateList(TvSeries tvSeries, VerticalLayout verticalLayout) {
 
-        for (WatchedEpisode w : watchedEpisodeService.findWatchedEPisodesByUser(SignInForm.currentUser)) {
-            add(new WatchedEpisodeComponent(w, watchedEpisodeService));
+        for (WatchedEpisode w : watchedEpisodeService.findWatchedEPisodesByUser(ComponentUtil.getData(UI.getCurrent(), User.class))) {
+            if(w.getEpisode().getSeason().getTvSeries().equals(tvSeries)) {
+                verticalLayout.add(new WatchedEpisodeComponent(w, watchedEpisodeService));
+            }
         }
     }
 
@@ -40,27 +52,31 @@ public class EpisodesListView extends VerticalLayout {
         public WatchedEpisodeComponent(WatchedEpisode watchedEpisode, WatchedEpisodeService watchedEpisodeService) {
             this.watchedEpisodeService = watchedEpisodeService;
             this.watchedEpisode = watchedEpisode;
-            Button removeButton = new Button("Delete");
-            removeButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            DatePicker datePicker = new DatePicker();
-            datePicker.setValue(watchedEpisode.getDateStarted());
-            datePicker.addValueChangeListener(event -> {
-               if(event.getValue() != null) {
-                   watchedEpisode.setDateStarted(event.getValue());
-                   watchedEpisodeService.save(watchedEpisode);
-               }
-            });
-            removeButton.addClickListener(buttonClickEvent -> {
-                watchedEpisodeService.remove(watchedEpisode);
-                removeAll();
-            });
-            add(
-                    new H4(watchedEpisode.getEpisode().getTitle()),
-                    new H5(watchedEpisode.getEpisode().getSeason().getTvSeries().getTitle()),
-                    new Details("Description", new Span(watchedEpisode.getEpisode().getDescription())),
-                    datePicker,
-                    removeButton
-            );
+            if(ComponentUtil.getData(UI.getCurrent(), User.class) == null) {
+                UI.getCurrent().navigate("error");
+            } else {
+                Button removeButton = new Button("Delete");
+                removeButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                DatePicker datePicker = new DatePicker();
+                datePicker.setValue(watchedEpisode.getDateStarted());
+                datePicker.addValueChangeListener(event -> {
+                    if (event.getValue() != null) {
+                        watchedEpisode.setDateStarted(event.getValue());
+                        watchedEpisodeService.save(watchedEpisode);
+                    }
+                });
+                removeButton.addClickListener(buttonClickEvent -> {
+                    watchedEpisodeService.remove(watchedEpisode);
+                    removeAll();
+                });
+                add(
+                        new H4(watchedEpisode.getEpisode().getTitle()),
+                        new H5("Season: " + watchedEpisode.getEpisode().getSeason().getSeasonNumber()),
+                        new Details("Description", new Span(watchedEpisode.getEpisode().getDescription())),
+                        datePicker,
+                        removeButton
+                );
+            }
         }
     }
 }
