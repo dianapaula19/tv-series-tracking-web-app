@@ -20,6 +20,9 @@ public class RequestService {
                 friends.add(r.getUser());
             }
         }
+        Set<User> friendsSet = new HashSet<>(friends);
+        friends.clear();
+        friends.addAll(friendsSet);
         return friends;
     }
 
@@ -30,7 +33,9 @@ public class RequestService {
                 friendRequests.add(r.getUser());
             }
         }
-
+        Set<User> friendRequestsSet = new HashSet<>(friendRequests);
+        friendRequests.clear();
+        friendRequests.addAll(friendRequestsSet);
         return friendRequests;
     }
 
