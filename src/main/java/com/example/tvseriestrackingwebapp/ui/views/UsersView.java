@@ -24,7 +24,7 @@ public class UsersView extends VerticalLayout {
         this.userService = userService;
         this.requestService = requestService;
         if(ComponentUtil.getData(UI.getCurrent(), User.class) == null) {
-
+            UI.getCurrent().navigate("error");
         } else {
             updateList();
         }

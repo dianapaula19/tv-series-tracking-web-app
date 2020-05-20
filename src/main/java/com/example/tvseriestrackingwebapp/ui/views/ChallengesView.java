@@ -18,7 +18,11 @@ public class ChallengesView extends VerticalLayout {
 
     public ChallengesView(ChallengeService challengeService) {
         this.challengeService = challengeService;
-        updateChallengesList();
+        if(ComponentUtil.getData(UI.getCurrent(), User.class) == null) {
+            UI.getCurrent().navigate("error");
+        } else {
+            updateChallengesList();
+        }
     }
 
     public void updateChallengesList() {
