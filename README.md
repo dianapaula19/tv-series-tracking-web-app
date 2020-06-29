@@ -1,14 +1,18 @@
 # tv-series-tracking-web-app
 
-### A project created in Java using the Vaadin framework that keeps track of the TV series an user watched. 
+### A project created in Java using the Vaadin framework that keeps track of the TV series a person has watched. 
   * create and sign into an account
   ![register](images/register.png)
   ![sign_ind](images/sign_in.png)
   * keep track of the episodes you watched by adding or removing them from your list
-  ![register](images/register.png)
-  * tracking the time spent watching TV series in the last three months
-  * the option of adding/removing the watched episodes from the user's list
-  * befriending other users and challenging them to binge-watch their favourite TV series
+  ![tv_series_list](images/tv_series_list.png)
+  ![list_of_watched_episodes](images/list_of_watched_episodes.png)
+  * see how much time you spent watching your favourite series each month
+  ![statistics](images/statistics.png)
+  * befriend other users
+  ![people_you_may_know](images/people_you_may_know.png)
+  ![friend_requests](images/friend_requests.png)
+  * challenge your friends to binge watch their favourite series and complete their challenges
+  ![friend_list](images/friend_list.png)
+  ![challenges](images/challenges.png)
 
-
-![picture](diagram_java_project.png)
