@@ -68,4 +68,6 @@ public class MainLayout extends AppLayout {
         statsLink.setHighlightCondition(HighlightConditions.sameLocation());
         addToDrawer(new VerticalLayout(statsLink, tvSeriesLink, episodesListLink, friendsLink, challengesLink, requestsLink, usersLink, logOutLink));
     }
+    
+
 }
