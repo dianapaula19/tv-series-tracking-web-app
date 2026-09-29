@@ -1,5 +1,7 @@
 # TV series tracker
 
+> **Original version:** this README and some fixes were added in 2026. To see the project exactly as it was first built, browse commit [`ec8cd38`](https://github.com/dianapaula19/tv-series-tracking-web-app/tree/ec8cd385ca10a27969818a371c1b33360cb6c69b) (2021-02-18).
+
 A social web app for tracking the TV series you watch, built in Java with Spring Boot and Vaadin (2020).
 
   * create and sign into an account
