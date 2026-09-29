@@ -29,3 +29,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Frontend dependencies (installed by Vaadin / npm)
+node_modules/
